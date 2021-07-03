@@ -150,6 +150,8 @@ $(() => {
             view_.ui.add("infoDiv");
             view_.ui.add("scaleStatus");
             view_.ui.add("Add_Panel");
+            view_.ui.add("maskDiv");
+            view_.ui.add("sbs_divider");
 
             const mask_view = new MapView({
                 map: mask_map,
