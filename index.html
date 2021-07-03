@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <title>2019年湖北省各市州GDP专题图</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.19/esri/themes/light/main.css">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+    <link rel="stylesheet" href="mapStyle.css">
+    <script src="echarts.js"></script>
+    <script src="https://cdn.staticfile.org/jquery/2.0.0/jquery.min.js"></script>
+    <script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://js.arcgis.com/4.19/init.js"></script>
+    <script src="arcgisAPI.js"></script>
+</head>
+<body>
+<div id="viewDiv"></div>
+
+<div class="sbs-divider"></div>
+<div id="maskDiv"></div>
+
+<a class="btn" id="layerMenu_btn"><span class="glyphicon glyphicon-th-list"
+                                        style="color: rgb(81, 77, 60); font-size: 18px;"></span></a>
+<div class="panel panel-default" id="layerMenu">
+    <div class="panel-heading">
+        图层管理
+    </div>
+    <div class="panel-body">
+        <form>
+            <div class="radio">
+                <label><input type="radio" name="optradio" value="arcgis-light-gray" onclick="changeBaseMap(this.value)"
+                              checked="checked">arcgis-light-gray</label>
+            </div>
+            <div class="radio">
+                <label><input type="radio" name="optradio" value="arcgis-dark-gray" onclick="changeBaseMap(this.value)">arcgis-dark-gray</label>
+            </div>
+            <div class="radio">
+                <label><input type="radio" name="optradio" value="arcgis-navigation"
+                              onclick="changeBaseMap(this.value)">arcgis-navigation</label>
+            </div>
+        </form>
+    </div>
+    <div class="panel-body">
+        <div class="littleView" id="littleView">
+
+        </div>
+    </div>
+    <ul class="list-group" id="featurebox">
+
+    </ul>
+    <div class="panel-footer">
+        <a href="#" style="margin-left: 5%" onclick="toggleSDS()">
+            <span class="glyphicon glyphicon-transfer" style="color: rgb(81, 77, 60);"></span>
+        </a>
+        <a href="#" style="margin-left: 70%" onclick="toggleAddPanel()">
+            <span class="glyphicon glyphicon-plus" style="color: rgb(81, 77, 60);"></span>
+        </a>
+    </div>
+</div>
+
+<div class="panel panel-default" id="Add_Panel">
+    <div class="panel-heading">
+        添加图层
+        <a class="btn" style="position: absolute; right: 0; top: 2px" onclick="toggleAddPanel()">
+            <span class="glyphicon glyphicon-remove" style="color: rgb(81, 77, 60);font-size: 18px;"></span>
+        </a>
+    </div>
+    <div class="panel-body">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>名称</th>
+                <th>服务</th>
+                <th>类型</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>hubei_gdp</td>
+                <td>GeoJSON</td>
+                <td>esriGeometryPolygon</td>
+                <td>
+                    <a type="button" class="btn" id="hubei_gdp" onclick="AddLayer2Map(this.id)">
+                        <span class="glyphicon glyphicon-plus"></span>
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td>river</td>
+                <td>FeatureServer</td>
+                <td>esriGeometryPolyline</td>
+                <td>
+                    <a type="button" class="btn" id="river" onclick="AddLayer2Map(this.id)">
+                        <span class="glyphicon glyphicon-plus"></span>
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td>ChinaProvince</td>
+                <td>GeoJSON</td>
+                <td>esriGeometryPolygon</td>
+                <td>
+                    <a type="button" class="btn" id="ChinaProvince" onclick="AddLayer2Map(this.id)">
+                        <span class="glyphicon glyphicon-plus"></span>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel-footer">
+        <label>
+            url:
+            <input type="text" id="layerUrl" placeholder="请输入服务地址...">
+        </label>
+        <a href="#" style="margin-left: 10px" onclick="AddLayer2List()">
+            <span class="glyphicon glyphicon-plus" style="color: rgb(81, 77, 60);"></span>
+        </a>
+    </div>
+</div>
+
+<a class="btn" id="echart_btn"><span class="glyphicon glyphicon-stats"
+                                        style="color: rgb(81, 77, 60); font-size: 18px;"></span></a>
+<div class="panel panel-default" id="echart">
+    <div class="panel-heading" style="text-align: center">
+        2010-2019年湖北地区生产总值
+    </div>
+    <div class="panel-body">
+        <div id="echart_hubei"></div>
+    </div>
+</div>
+
+<div id="infoDiv" class="esri-widget">
+    Select Field:
+    <select id="field-select" class="esri-widget">
+        <option value="gdp_2019">GDP_2019年</option>
+        <option value="gdp_2018">GDP_2018年</option>
+        <option value="gdp_2017">GDP_2017年</option>
+        <option value="gdp_2016">GDP_2016年</option>
+        <option value="gdp_2015">GDP_2015年</option>
+        <option value="gdp_2014">GDP_2014年</option>
+        <option value="gdp_2013">GDP_2013年</option>
+        <option value="gdp_2012">GDP_2012年</option>
+        <option value="gdp_2011">GDP_2011年</option>
+        <option value="gdp_2010">GDP_2010年</option>
+    </select>
+    Classification:
+    <select id="class-select" class="esri-widget">
+        <option value="equal-interval" selected>Equal interval</option>
+        <option value="quantile">Quantile</option>
+        <option value="natural-breaks">Natual Breaks</option>
+        <option value="manual">Manual</option>
+    </select>
+    Breaks:
+    <input type="number" id="num-classes" class="esri-widget" value="5" min="2" max="10" />
+</div>
+
+<div id="scaleStatus">
+    lat:&nbsp;<span id="lat">0</span>&nbsp;
+    lon:&nbsp;<span id="lon">0</span>&nbsp;
+    Scale:&nbsp;<span id="scale"></span>&nbsp;
+    layercount:&nbsp;<span id="layercount">0</span>
+</div>
+</body>
+</html>
